@@ -1737,7 +1737,7 @@ Expires: {ad['expiry'].strftime('%Y-%m-%d')}
         # Advertisement purchase conversation
         ad_conv_handler = ConversationHandler(
             entry_points=[
-                CallbackQueryHandler(self.button_handler, pattern='^buy_advertisement),
+                CallbackQueryHandler(self.button_handler, pattern='buy_advertisement'),
                 CommandHandler("buy_ad", self.start_ad_purchase_dm)
             ],
             states={
