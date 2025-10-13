@@ -32,22 +32,22 @@ logger = logging.getLogger(__name__)
 # ============= CONFIGURATION =============
 class Config:
     # Bot Tokens (Replace with your actual tokens)
-    ADVERTISING_BOT_TOKEN = "YOUR_ADVERTISING_BOT_TOKEN"
-    VIP_BOT_TOKEN = "YOUR_VIP_BOT_TOKEN"
-    GROUP_MGMT_BOT_TOKEN = "YOUR_GROUP_MGMT_BOT_TOKEN"
-    AUTOADV_BOT_TOKEN = "YOUR_AUTOADV_BOT_TOKEN"
+    ADVERTISING_BOT_TOKEN = "8455931212:AAGOLICokhaKTmqEJKKCzDa9gobYnywmlN4"
+    VIP_BOT_TOKEN = "8233798151:AAFHctdFHjHyJEgxPXGkDQoFRVusjLQMVtU"
+    GROUP_MGMT_BOT_TOKEN = "8389675530:AAHJYSKo06qummgk4cm3sgZGj0G8zH1dVKg"
+    AUTOADV_BOT_TOKEN = "8418940396:AAEg2qqNOInwKfqoQSHQs4xgO4jOu7Qbh9I"
     
     # Group IDs (Replace with actual group IDs)
-    MAIN_GROUP_ID = -1001234567890
-    VIP_GROUP_ID = -1001234567891
-    COMPANY_RESOURCES_ID = -1001234567892
-    SCAMMER_EXPOSED_ID = -1001234567893
+    MAIN_GROUP_ID = -1003097566042
+    VIP_GROUP_ID = -1003075027543
+    COMPANY_RESOURCES_ID = -1003145253219
+    SCAMMER_EXPOSED_ID = -1002906057259
     
     # Invite Links (Update these)
-    MAIN_GROUP_LINK = "https://t.me/+YOUR_MAIN_GROUP"
-    VIP_GROUP_LINK = "https://t.me/+YOUR_VIP_GROUP"
-    COMPANY_RESOURCES_LINK = "https://t.me/+YOUR_COMPANY_RESOURCES"
-    SCAMMER_EXPOSED_LINK = "https://t.me/+YOUR_SCAMMER_EXPOSED"
+    MAIN_GROUP_LINK = "https://t.me/addlist/Q3yfSoHIJnpiMGJl"
+    VIP_GROUP_LINK = "https://t.me/addlist/Q3yfSoHIJnpiMGJl"
+    COMPANY_RESOURCES_LINK = "https://t.me/addlist/Q3yfSoHIJnpiMGJl"
+    SCAMMER_EXPOSED_LINK = "https://t.me/addlist/Q3yfSoHIJnpiMGJl"
     
     # Pricing
     ADS_PRICE_USDT = 188
@@ -57,7 +57,7 @@ class Config:
     
     # TronScan API
     TRONSCAN_API = "https://apilist.tronscanapi.com/api"
-    WALLET_ADDRESS = "YOUR_USDT_WALLET_ADDRESS"
+    WALLET_ADDRESS = "TD1gmGWyWqFY5STqZW5PMRqMR46xJhj5rP"
 
 
 # ============= DATABASE (JSON-based for simplicity) =============
