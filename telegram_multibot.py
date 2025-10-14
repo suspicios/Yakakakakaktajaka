@@ -1910,4 +1910,4 @@ Questions? Just ask!
 # self.app.add_handler(CommandHandler("my_purchases", self.my_purchases))
 # self.app.add_handler(CommandHandler("prices", self.prices_command))
 # self.app.add_handler(CommandHandler("help_buy", self.help_buy))
-"""
+
