@@ -1444,8 +1444,6 @@ if __name__ == "__main__":
 # ==================== ADDITIONAL ADMIN COMMANDS ====================
 # These are additional commands you can add to each bot class
 
-"""
-ADDITIONAL COMMANDS TO ADD:
 
 BOT 1 (Advertising Bot) - Add these methods to AdvertisingBot class:
 
