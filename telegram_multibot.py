@@ -1445,7 +1445,7 @@ if __name__ == "__main__":
 # These are additional commands you can add to each bot class
 
 
-BOT1 (Advertising Bot) - Add these methods to AdvertisingBot class:
+BOT1 (AdvertisingBot) - Add these methods to AdvertisingBot class:
 
 async def adv_delete(self, update, context):
     if not is_admin(update.effective_user.id):
