@@ -1885,7 +1885,7 @@ Instant posting, help community
         """Handle text messages"""
         if update.effective_chat.type != "private":
             # Delete any TX hash or sensitive info posted in groups
-            if re.match(r'^[a-fA-F0-9]{64}, update.message.text or ""):
+            if re.match(r^[a-fA-F0-9]{64}, update.message.text or ""):
                 try:
                     await update.message.delete()
                     await context.bot.send_message(
