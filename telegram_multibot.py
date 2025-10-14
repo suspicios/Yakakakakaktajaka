@@ -1933,6 +1933,15 @@ Instant posting, help community
 # 🚀 MAIN EXECUTION
 # ============================
 
+async def run_bot(bot_instance, bot_name):
+    """Run a single bot with proper error handling"""
+    try:
+        logger.info(f"🚀 Starting {bot_name}...")
+        await bot_instance.run()
+    except Exception as e:
+        logger.error(f"❌ Error in {bot_name}: {e}")
+        raise
+
 async def main():
     """Initialize and run all bots concurrently"""
     logger.info("🚀 Starting Interlink Multi-Bot System...")
@@ -1950,18 +1959,28 @@ async def main():
     logger.info(f"💳 Payment Mode: {PAYMENT_MODE.upper()}")
     logger.info("🎯 Starting all bots...")
     
-    # Run all bots concurrently
+    # Run all bots concurrently with proper task management
+    tasks = [
+        asyncio.create_task(run_bot(adv_bot, "Advertising Bot")),
+        asyncio.create_task(run_bot(vip_bot, "VIP Bot")),
+        asyncio.create_task(run_bot(group_bot, "Group Management Bot")),
+        asyncio.create_task(run_bot(autoadv_bot, "Auto ADV Bot"))
+    ]
+    
     try:
-        await asyncio.gather(
-            adv_bot.run(),
-            vip_bot.run(),
-            group_bot.run(),
-            autoadv_bot.run()
-        )
+        # Wait for all bots to run
+        await asyncio.gather(*tasks)
     except KeyboardInterrupt:
-        logger.info("🛑 Shutting down bots...")
+        logger.info("🛑 Shutdown requested...")
     except Exception as e:
         logger.error(f"❌ Error running bots: {e}")
+    finally:
+        # Cancel all tasks
+        for task in tasks:
+            task.cancel()
+        # Wait for all tasks to be cancelled
+        await asyncio.gather(*tasks, return_exceptions=True)
+        logger.info("✅ All bots stopped")
 
 if __name__ == "__main__":
     """Entry point"""
@@ -1981,4 +2000,5 @@ if __name__ == "__main__":
     ╚═══════════════════════════════════════════════════════════╝
     """.format(mode=PAYMENT_MODE.upper()))
     
+    # Run the main function
     asyncio.run(main())
