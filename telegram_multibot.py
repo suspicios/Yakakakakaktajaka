@@ -1560,7 +1560,7 @@ async def vip_stats(self, update, context):
     conn.close()
     
     msg = f"""
-📊 **VIP STATISTICS**
+**VIP STATISTICS**
 
 ✅ Active VIPs: {active_vips}
 ⏰ Expired VIPs: {expired_vips}
