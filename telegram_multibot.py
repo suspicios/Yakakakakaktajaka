@@ -1,5 +1,4 @@
-[file name]: mrlonly.py
-[file content begin]
+
 """
 🚀 INTERLINK MULTI-BOT SYSTEM
 Complete bot ecosystem for group management, VIP verification, advertising, and payment processing.
@@ -2945,4 +2944,4 @@ if __name__ == "__main__":
         logger.info("🛑 All bots stopped by user")
     except Exception as e:
         logger.error(f"❌ Fatal error: {e}")
-[file content end]
+
