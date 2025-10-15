@@ -60,7 +60,7 @@ TRONSCAN_API = "https://apilist.tronscan.org/api/transaction/info"
 YOUR_USDT_ADDRESS = "TD1gmGWyWqFY5STqZW5PMRqMR46xJhj5rP"
 
 # Admin User IDs (Replace with actual admin user IDs)
-ADMIN_IDS = [123456789]  # Add your actual Telegram user ID(s)
+ADMIN_IDS = [7578682081]  # Add your actual Telegram user ID(s)
 
 # Database
 DB_NAME = "interlink_bots.db"
