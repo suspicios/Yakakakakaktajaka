@@ -1512,19 +1512,19 @@ class AutoAdvPaymentBot:
         self.products = {
             "advertisement": {
                 "name": "Advertisement Post",
-                "price": 10.0,
+                "price": 180,
                 "duration": "30 days",
                 "description": "Promote your business/service in our groups"
             },
             "vip": {
                 "name": "VIP Membership",
-                "price": 50.0,
+                "price": 300,
                 "duration": "60 days",
                 "description": "Premium verification and VIP channel posting rights"
             },
             "scammer_report": {
                 "name": "Scammer Report",
-                "price": null,
+                "price": 0.0,
                 "duration": "Permanent",
                 "description": "Report scammer to protect community"
             }
