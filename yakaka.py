@@ -53,7 +53,7 @@ TRONSCAN_API = "https://apilist.tronscan.org/api/transaction/info"
 YOUR_USDT_ADDRESS = "TD1gmGWyWqFY5STqZW5PMRqMR46xJhj5rP"
 
 # Admin User IDs (Add your admin IDs here)
-ADMIN_IDS = [123456789]  # Replace with actual admin user IDs
+ADMIN_IDS = [7578682081]  # Replace with actual admin user IDs
 
 # Database
 DB_NAME = "interlink_bots.db"
@@ -552,8 +552,10 @@ class AdvertisingBot:
 """
                     # Using actual bot usernames
                     keyboard = [
+                        [InlineKeyboardButton("🏢 Genuine companys", url=f"https://t.me/+bEyi7RpG_NxjZjk1")]
+                        [InlineKeyboardButton("🏢 Authorised Buyer", url=f"https://t.me/+D9yrbrh6xTcyNGE1")]
                         [InlineKeyboardButton("💎 Join VIP", url=f"https://t.me/NepalChinIndiaVIPVERIFY_bot?start=vip_info")],
-                        [InlineKeyboardButton("🏢 Company Resources", url=f"https://t.me/your_company_channel")],
+                        
                         [InlineKeyboardButton("📢 Post Ad", url=f"https://t.me/NepalChinIndiaAUTOADV_bot?start=buy_ad")],
                         [InlineKeyboardButton("⚠️ Report Scammer", url=f"https://t.me/NepalChinIndiaAUTOADV_bot?start=report_scammer")]
                     ]
@@ -1522,7 +1524,7 @@ class AutoAdvPaymentBot:
             },
             "scammer_report": {
                 "name": "Scammer Report",
-                "price": 5.0,
+                "price": null,
                 "duration": "Permanent",
                 "description": "Report scammer to protect community"
             }
