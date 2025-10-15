@@ -1,5 +1,4 @@
-[file name]: mrlonly.py
-[file content begin]
+
 """
 🚀 INTERLINK MULTI-BOT SYSTEM
 Complete bot ecosystem for group management, VIP verification, advertising, and payment processing.
