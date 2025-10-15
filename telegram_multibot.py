@@ -977,6 +977,7 @@ Get maximum visibility with our automated advertising system.
         )
         self.scheduler.start()
     
+# REPLACE WITH THIS:
     async def run(self):
         """Run the advertising bot"""
         await init_database()
@@ -984,7 +985,10 @@ Get maximum visibility with our automated advertising system.
         self.start_scheduler()
         
         logger.info("🚀 Advertising Bot is running...")
-        await self.app.run_polling()
+        async with self.app:
+            await self.app.start()
+            await self.app.updater.start_polling()
+            await asyncio.Event().wait()
 
 # ============================
 # 👑 2. VIP VERIFICATION BOT
@@ -1791,13 +1795,19 @@ class VIPVerificationBot:
         self.app.add_handler(CommandHandler("vipsettings", self.settings_vip_command))
         self.app.add_handler(CommandHandler("vipannounce", self.announce_vip_command))
     
+
+
+# REPLACE WITH THIS:
     async def run(self):
         """Run the VIP verification bot"""
         await init_database()
         self.setup_handlers()
         
         logger.info("👑 VIP Verification Bot is running...")
-        await self.app.run_polling()
+        async with self.app:
+            await self.app.start()
+            await self.app.updater.start_polling()
+            await asyncio.Event().wait()
 
 # ============================
 # 🛡️ 3. GROUP MANAGEMENT BOT
@@ -2581,13 +2591,18 @@ class GroupManagementBot:
         self.app.add_handler(CommandHandler("groupsettings", self.settings_command))
         self.app.add_handler(CommandHandler("groupannounce", self.announce_command))
     
+
+# REPLACE WITH THIS:
     async def run(self):
         """Run the group management bot"""
         await init_database()
         self.setup_handlers()
         
         logger.info("🛡️ Group Management Bot is running...")
-        await self.app.run_polling()
+        async with self.app:
+            await self.app.start()
+            await self.app.updater.start_polling()
+            await asyncio.Event().wait()
 
 # ============================
 # 💰 4. AUTOADV PAYMENT BOT
@@ -3367,39 +3382,59 @@ class AutoAdvPaymentBot:
                 "🚀 *Let's build something amazing together!*",
                 parse_mode=ParseMode.MARKDOWN
             )
-    
+
+# REPLACE WITH THIS:
     async def run(self):
         """Run the AutoADV payment bot"""
         await init_database()
         self.setup_handlers()
         
         logger.info("💰 AutoADV Payment Bot is running...")
-        await self.app.run_polling()
+        async with self.app:
+            await self.app.start()
+            await self.app.updater.start_polling()
+            await asyncio.Event().wait()
 
 # ============================
 # 🚀 MAIN EXECUTION
 # ============================
 
+# FIND THIS (around line 3350):
 async def main():
     """Main function to run all bots"""
     try:
+        logger.info("🚀 Starting INTERLINK Multi-Bot System...")
+        
         # Initialize all bots
         adv_bot = AdvertisingBot(ADV_BOT_TOKEN)
         vip_bot = VIPVerificationBot(VIP_BOT_TOKEN)
         group_bot = GroupManagementBot(GROUP_BOT_TOKEN)
         autoadv_bot = AutoAdvPaymentBot(AUTOADV_BOT_TOKEN)
         
-        # Run all bots concurrently
-        await asyncio.gather(
-            adv_bot.run(),
-            vip_bot.run(),
-            group_bot.run(),
-            autoadv_bot.run(),
-            return_exceptions=True
-        )
+        logger.info("✅ All bots initialized successfully")
         
+        # Run all bots concurrently
+        tasks = [
+            asyncio.create_task(adv_bot.run()),
+            asyncio.create_task(vip_bot.run()),
+            asyncio.create_task(group_bot.run()),
+            asyncio.create_task(autoadv_bot.run())
+        ]
+        
+        logger.info("⚡ All bots are now running...")
+        
+        # Wait for all tasks
+        await asyncio.gather(*tasks, return_exceptions=True)
+        
+    except KeyboardInterrupt:
+        logger.info("🛑 Shutting down gracefully...")
     except Exception as e:
-        logger.error(f"Error in main: {e}")
+        logger.error(f"❌ Error in main: {e}", exc_info=True)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("🛑 Bot system stopped by user")
+    except Exception as e:
+        logger.error(f"❌ Fatal error: {e}", exc_info=True)
