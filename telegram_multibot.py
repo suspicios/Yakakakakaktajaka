@@ -3805,12 +3805,226 @@ class AutoAdvPaymentBot:
 
 
 # ============================
-# 🚀 MAIN EXECUTION - SIMPLE FIX
+# 🚀 MAIN EXECUTION - SINGLE BOT SOLUTION
 # ============================
 
+class CombinedBot:
+    """Single bot that handles all functionality to avoid polling conflicts"""
+    
+    def __init__(self, token: str):
+        self.token = token
+        self.app = Application.builder().token(token).build()
+        self.scheduler = AsyncIOScheduler()
+        
+    async def is_admin(self, user_id: int) -> bool:
+        """Check if user is admin"""
+        return user_id in ADMIN_IDS
+    
+    # Advertising Bot Commands
+    async def ad_start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Start command for advertising"""
+        await update.message.reply_text(
+            "🌟 *GREETINGS, MASTER OF ADVERTISING!* 🌟\n\n"
+            "I am your multi-functional bot handling advertising, VIP verification, group management, and payments!",
+            parse_mode=ParseMode.MARKDOWN
+        )
+    
+    async def ad_help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Advertising help command"""
+        await update.message.reply_text(
+            "📢 *ADVERTISING COMMANDS:*\n"
+            "/adstart - Start advertising\n"
+            "/adstats - Advertising statistics\n"
+            "/adviewqueue - View ad queue\n\n"
+            "👑 *VIP COMMANDS:*\n"
+            "/vipstart - VIP verification\n"
+            "/vipstatus - Check VIP status\n"
+            "/vipmembers - View VIP members\n\n"
+            "🛡️ *GROUP COMMANDS:*\n"
+            "/groupstart - Group management\n"
+            "/groupstats - Group statistics\n"
+            "/groupmembers - View members\n\n"
+            "💰 *PAYMENT COMMANDS:*\n"
+            "/autoadvstart - Payment system\n"
+            "/autoadvbuy - Purchase services\n"
+            "/autoadvstatus - Payment status",
+            parse_mode=ParseMode.MARKDOWN
+        )
+    
+    # VIP Bot Commands
+    async def vip_start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Start command for VIP"""
+        await update.message.reply_text(
+            "👑 *WELCOME TO VIP VERIFICATION* 👑\n\n"
+            "VIP verification system is ready!",
+            parse_mode=ParseMode.MARKDOWN
+        )
+    
+    async def vip_status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Check VIP status"""
+        user_id = update.effective_user.id
+        username = update.effective_user.username or "No username"
+        
+        async with aiosqlite.connect(DB_NAME) as db:
+            cursor = await db.execute("SELECT is_active FROM vip_members WHERE user_id=?", (user_id,))
+            vip_data = await cursor.fetchone()
+        
+        if vip_data and vip_data[0] == 1:
+            await update.message.reply_text(f"✅ @{username} is a VIP member!")
+        else:
+            await update.message.reply_text(f"❌ @{username} is not a VIP member.")
+    
+    # Group Management Commands
+    async def group_start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Start command for group management"""
+        await update.message.reply_text(
+            "🛡️ *GROUP MANAGEMENT SYSTEM* 🛡️\n\n"
+            "Group management features are available!",
+            parse_mode=ParseMode.MARKDOWN
+        )
+    
+    # Payment Bot Commands
+    async def autoadv_start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Start command for payments"""
+        await update.message.reply_text(
+            "💰 *AUTOADV PAYMENT SYSTEM* 💰\n\n"
+            "Payment system is ready! Use /autoadvbuy to purchase services.",
+            parse_mode=ParseMode.MARKDOWN
+        )
+    
+    async def autoadv_buy_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Start purchase process"""
+        keyboard = [
+            [InlineKeyboardButton("📢 Advertisement", callback_data="buy_ad")],
+            [InlineKeyboardButton("👑 VIP Membership", callback_data="buy_vip")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await update.message.reply_text(
+            "🛍️ *WHAT WOULD YOU LIKE TO PURCHASE?*",
+            reply_markup=reply_markup,
+            parse_mode=ParseMode.MARKDOWN
+        )
+    
+    # Advertisement posting task
+    async def post_advertisement(self):
+        """Background task to post advertisements"""
+        try:
+            async with aiosqlite.connect(DB_NAME) as db:
+                # Check if paused
+                cursor = await db.execute("SELECT is_paused FROM ad_config WHERE id=1")
+                result = await cursor.fetchone()
+                if result and result[0] == 1:
+                    return
+                
+                # Get next ad or use default
+                cursor = await db.execute("""
+                    SELECT id, heading, type, description, contact 
+                    FROM ads_queue 
+                    WHERE status='active' AND expires_at > ? 
+                    ORDER BY post_count ASC, created_at ASC 
+                    LIMIT 1
+                """, (datetime.now().isoformat(),))
+                ad = await cursor.fetchone()
+                
+                if ad:
+                    ad_text = f"🎯 *{ad[1]}*\n\n🏷️ *Type:* {ad[2]}\n📝 *Description:*\n{ad[3]}\n\n📞 *Contact:* {ad[4]}"
+                    # Update post count
+                    await db.execute("UPDATE ads_queue SET post_count=post_count+1 WHERE id=?", (ad[0],))
+                else:
+                    ad_text = "🎯 *NEED ADVERTISING?*\n\nPromote your business with our automated advertising system!"
+                
+                await db.commit()
+                
+                # Post to groups using the main bot instance
+                groups = [MAIN_GROUP_ID, COMPANY_RESOURCES_ID]
+                for group_id in groups:
+                    try:
+                        await self.app.bot.send_message(
+                            chat_id=group_id,
+                            text=ad_text,
+                            parse_mode=ParseMode.MARKDOWN
+                        )
+                        # Update last post time
+                        await db.execute("UPDATE ad_config SET last_post_time=? WHERE id=1", (datetime.now().isoformat(),))
+                        await db.commit()
+                    except Exception as e:
+                        logger.error(f"Error posting ad to group {group_id}: {e}")
+                        
+        except Exception as e:
+            logger.error(f"Error in post_advertisement: {e}")
+    
+    def setup_handlers(self):
+        """Setup all command handlers"""
+        # Advertising commands
+        self.app.add_handler(CommandHandler("adstart", self.ad_start_command))
+        self.app.add_handler(CommandHandler("adhelp", self.ad_help_command))
+        self.app.add_handler(CommandHandler("adstats", self.ad_help_command))
+        self.app.add_handler(CommandHandler("adviewqueue", self.ad_help_command))
+        
+        # VIP commands
+        self.app.add_handler(CommandHandler("vipstart", self.vip_start_command))
+        self.app.add_handler(CommandHandler("vipstatus", self.vip_status_command))
+        self.app.add_handler(CommandHandler("vipmembers", self.vip_start_command))
+        
+        # Group commands
+        self.app.add_handler(CommandHandler("groupstart", self.group_start_command))
+        self.app.add_handler(CommandHandler("groupstats", self.group_start_command))
+        self.app.add_handler(CommandHandler("groupmembers", self.group_start_command))
+        
+        # Payment commands
+        self.app.add_handler(CommandHandler("autoadvstart", self.autoadv_start_command))
+        self.app.add_handler(CommandHandler("autoadvbuy", self.autoadv_buy_command))
+        self.app.add_handler(CommandHandler("autoadvstatus", self.autoadv_start_command))
+    
+    def start_scheduler(self):
+        """Start the advertisement scheduler"""
+        try:
+            self.scheduler.add_job(
+                self.post_advertisement,
+                'interval',
+                minutes=5,
+                id='ad_posting'
+            )
+            self.scheduler.start()
+            logger.info("✅ Advertising scheduler started successfully")
+        except Exception as e:
+            logger.error(f"❌ Error starting scheduler: {e}")
+    
+    def run_bot(self):
+        """Run the combined bot"""
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        async def async_run():
+            await init_database()
+            self.setup_handlers()
+            self.start_scheduler()
+            
+            logger.info("🚀 Combined Bot is running...")
+            await self.app.initialize()
+            await self.app.start()
+            await self.app.updater.start_polling()
+            
+            # Keep the bot running
+            while True:
+                await asyncio.sleep(3600)
+        
+        try:
+            loop.run_until_complete(async_run())
+        except KeyboardInterrupt:
+            logger.info("🛑 Combined Bot stopped by user")
+        except Exception as e:
+            logger.error(f"❌ Error in Combined Bot: {e}")
+        finally:
+            loop.run_until_complete(self.app.stop())
+            loop.run_until_complete(self.app.shutdown())
+            loop.close()
+
 def main():
-    """Main function to run only one bot with polling, others setup only"""
-    logger.info("🚀 Starting INTERLINK Multi-Bot System...")
+    """Main function - runs single combined bot"""
+    logger.info("🚀 Starting INTERLINK Multi-Bot System (Single Bot Version)...")
     
     # Initialize database first
     import asyncio
@@ -3821,43 +4035,9 @@ def main():
     
     logger.info("✅ Database initialized successfully")
     
-    # Create bot instances
-    advertising_bot = AdvertisingBot(ADV_BOT_TOKEN)
-    vip_bot = VIPVerificationBot(VIP_BOT_TOKEN) 
-    group_bot = GroupManagementBot(GROUP_BOT_TOKEN)
-    autoadv_bot = AutoAdvPaymentBot(AUTOADV_BOT_TOKEN)
-    
-    logger.info("✅ All bots initialized successfully")
-    
-    # Setup all bots but only run one with polling
-    import threading
-    import time
-    
-    def setup_bot(bot_instance, bot_name):
-        """Setup a bot without starting polling"""
-        try:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            
-            async def async_setup():
-                await init_database()
-                bot_instance.setup_handlers()
-                await bot_instance.app.initialize()
-                await bot_instance.app.start()
-                logger.info(f"✅ {bot_name} setup complete")
-                
-            loop.run_until_complete(async_setup())
-        except Exception as e:
-            logger.error(f"❌ Error setting up {bot_name}: {e}")
-    
-    # Setup all bots first
-    setup_bot(vip_bot, "VIP Bot")
-    setup_bot(group_bot, "Group Bot") 
-    setup_bot(autoadv_bot, "AutoADV Bot")
-    
-    # Run only advertising bot with polling (main bot)
-    logger.info("🚀 Starting Advertising Bot with polling...")
-    advertising_bot.run_bot()
+    # Use the Advertising Bot token as the main bot
+    combined_bot = CombinedBot(ADV_BOT_TOKEN)
+    combined_bot.run_bot()
 
 if __name__ == "__main__":
     main()
