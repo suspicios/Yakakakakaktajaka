@@ -3803,12 +3803,13 @@ class AutoAdvPaymentBot:
             loop.run_until_complete(self.app.shutdown())
             loop.close()
 
+
 # ============================
-# 🚀 MAIN EXECUTION - FIXED
+# 🚀 MAIN EXECUTION - SIMPLE FIX
 # ============================
 
 def main():
-    """Main function to run all bots - FIXED VERSION"""
+    """Main function to run only one bot with polling, others setup only"""
     logger.info("🚀 Starting INTERLINK Multi-Bot System...")
     
     # Initialize database first
@@ -3822,50 +3823,41 @@ def main():
     
     # Create bot instances
     advertising_bot = AdvertisingBot(ADV_BOT_TOKEN)
-    vip_bot = VIPVerificationBot(VIP_BOT_TOKEN)
+    vip_bot = VIPVerificationBot(VIP_BOT_TOKEN) 
     group_bot = GroupManagementBot(GROUP_BOT_TOKEN)
     autoadv_bot = AutoAdvPaymentBot(AUTOADV_BOT_TOKEN)
     
     logger.info("✅ All bots initialized successfully")
     
-    # Run each bot in its own thread to avoid event loop conflicts
+    # Setup all bots but only run one with polling
     import threading
     import time
     
-    def run_advertising_bot():
-        advertising_bot.run_bot()
+    def setup_bot(bot_instance, bot_name):
+        """Setup a bot without starting polling"""
+        try:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            async def async_setup():
+                await init_database()
+                bot_instance.setup_handlers()
+                await bot_instance.app.initialize()
+                await bot_instance.app.start()
+                logger.info(f"✅ {bot_name} setup complete")
+                
+            loop.run_until_complete(async_setup())
+        except Exception as e:
+            logger.error(f"❌ Error setting up {bot_name}: {e}")
     
-    def run_vip_bot():
-        vip_bot.run_bot()
+    # Setup all bots first
+    setup_bot(vip_bot, "VIP Bot")
+    setup_bot(group_bot, "Group Bot") 
+    setup_bot(autoadv_bot, "AutoADV Bot")
     
-    def run_group_bot():
-        group_bot.run_bot()
-    
-    def run_autoadv_bot():
-        autoadv_bot.run_bot()
-    
-    # Start all bots in separate threads
-    threads = [
-        threading.Thread(target=run_advertising_bot, name="AdvertisingBot"),
-        threading.Thread(target=run_vip_bot, name="VIPBot"), 
-        threading.Thread(target=run_group_bot, name="GroupBot"),
-        threading.Thread(target=run_autoadv_bot, name="AutoADVBot")
-    ]
-    
-    for thread in threads:
-        thread.daemon = True
-        thread.start()
-        logger.info(f"✅ Started {thread.name}")
-        time.sleep(1)  # Stagger startup
-    
-    logger.info("⚡ All bots are now running...")
-    
-    # Keep main thread alive
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        logger.info("🛑 Shutting down INTERLINK Multi-Bot System...")
+    # Run only advertising bot with polling (main bot)
+    logger.info("🚀 Starting Advertising Bot with polling...")
+    advertising_bot.run_bot()
 
 if __name__ == "__main__":
     main()
