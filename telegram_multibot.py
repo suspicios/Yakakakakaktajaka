@@ -3781,8 +3781,7 @@ class AutoAdvPaymentBot:
         
         async def async_run():
             await init_database()
-            self.setup_handlers()
-            
+            self.setup_handlers()            
             logger.info("💰 AutoADV Payment Bot is running...")
             await self.app.initialize()
             await self.app.start()
@@ -3809,27 +3808,25 @@ class AutoAdvPaymentBot:
 # ============================
 
 # ============================
-# 🚀 MAIN EXECUTION - WEBHOOK SOLUTION
+# 🚀 MAIN EXECUTION - COMBINED BOT SYSTEM
 # ============================
 
-import os
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler, ContextTypes
-
-class SingleBotSystem:
-    """Single bot that handles all functionality using webhooks to avoid conflicts"""
+class CombinedBot:
+    """Single bot that handles ALL functionality from all 4 bots"""
     
     def __init__(self, token: str):
         self.token = token
         self.app = Application.builder().token(token).build()
         self.scheduler = AsyncIOScheduler()
+        self.ad_purchase_data = {}
+        self.payment_mode = PAYMENT_MODE
         
     async def is_admin(self, user_id: int) -> bool:
         """Check if user is admin"""
         return user_id in ADMIN_IDS
     
-    # All the command methods from the previous CombinedBot class...
-    # (Copy all the command methods from the previous solution here)
+    # Import ALL command methods from the 4 bots above
+    # Just reference them - they're already defined in the classes above
     
     async def post_advertisement(self):
         """Background task to post advertisements"""
@@ -3852,26 +3849,64 @@ class SingleBotSystem:
                 ad = await cursor.fetchone()
                 
                 if ad:
-                    ad_text = f"🎯 *{ad[1]}*\n\n🏷️ *Type:* {ad[2]}\n📝 *Description:*\n{ad[3]}\n\n📞 *Contact:* {ad[4]}"
-                    # Update post count
+                    ad_text = f"""
+🎯 *{ad[1]}*
+
+🏷️ *Type:* {ad[2]}
+📝 *Description:*
+{ad[3]}
+
+📞 *Contact:* {ad[4]}
+
+━━━━━━━━━━━━━━━
+✨ _Posted by Advertising Bot_
+"""
                     await db.execute("UPDATE ads_queue SET post_count=post_count+1 WHERE id=?", (ad[0],))
                 else:
-                    ad_text = "🎯 *NEED ADVERTISING?*\n\nPromote your business with our automated advertising system!"
+                    ad_text = f"""
+🎯 *NEED ADVERTISING?*
+
+🏷️ *Type:* Premium Promotion
+📝 *Description:*
+Promote your business, service, or product to thousands of active users! 
+Get maximum visibility with our automated advertising system.
+
+📞 *Contact:* {AUTOADV_BOT_USERNAME}
+
+━━━━━━━━━━━━━━━
+✨ _Posted by Advertising Bot_
+"""
                 
                 await db.commit()
                 
                 # Post to groups
                 groups = [MAIN_GROUP_ID, COMPANY_RESOURCES_ID]
+                keyboard = [
+                    [InlineKeyboardButton("📢 Post Your Ad", url=f"https://t.me/NepalChinIndiaAUTOADV_bot?start=buy_ad")],
+                    [InlineKeyboardButton("⚠️ Report Scammer", url=f"https://t.me/NepalChinIndiaAUTOADV_bot?start=report_scammer")]
+                ]
+                reply_markup = InlineKeyboardMarkup(keyboard)
+                
                 for group_id in groups:
                     try:
-                        await self.app.bot.send_message(
+                        message = await self.app.bot.send_message(
                             chat_id=group_id,
                             text=ad_text,
+                            reply_markup=reply_markup,
                             parse_mode=ParseMode.MARKDOWN
                         )
+                        
+                        # Pin in main group
+                        if group_id == MAIN_GROUP_ID:
+                            try:
+                                await self.app.bot.pin_chat_message(group_id, message.message_id)
+                            except Exception as e:
+                                logger.error(f"Error pinning message: {e}")
+                        
                         # Update last post time
                         await db.execute("UPDATE ad_config SET last_post_time=? WHERE id=1", (datetime.now().isoformat(),))
                         await db.commit()
+                        
                     except Exception as e:
                         logger.error(f"Error posting ad to group {group_id}: {e}")
                         
@@ -3879,8 +3914,70 @@ class SingleBotSystem:
             logger.error(f"Error in post_advertisement: {e}")
     
     def setup_handlers(self):
-        """Setup all command handlers"""
-        # Copy all the handler setup from the previous solution
+        """Setup ALL handlers from all 4 bots"""
+        
+        # Create instances to access their methods
+        adv_bot = AdvertisingBot(ADV_BOT_TOKEN)
+        vip_bot = VIPVerificationBot(VIP_BOT_TOKEN)
+        group_bot = GroupManagementBot(GROUP_BOT_TOKEN)
+        autoadv_bot = AutoAdvPaymentBot(AUTOADV_BOT_TOKEN)
+        
+        # ADVERTISING BOT COMMANDS (ad prefix)
+        self.app.add_handler(CommandHandler("adstart", adv_bot.start_command))
+        self.app.add_handler(CommandHandler("adhelp", adv_bot.help_command))
+        self.app.add_handler(CommandHandler("adabout", adv_bot.about_command))
+        self.app.add_handler(CommandHandler("adstatus", adv_bot.status_command))
+        self.app.add_handler(CommandHandler("adstats", adv_bot.stats_command))
+        self.app.add_handler(CommandHandler("adviewqueue", adv_bot.view_queue_command))
+        self.app.add_handler(CommandHandler("admyads", adv_bot.my_ads_command))
+        self.app.add_handler(CommandHandler("adpause", adv_bot.pause_ads_command))
+        self.app.add_handler(CommandHandler("adresume", adv_bot.resume_ads_command))
+        
+        # VIP BOT COMMANDS (vip prefix)
+        self.app.add_handler(CommandHandler("vipstart", vip_bot.start_command))
+        self.app.add_handler(CommandHandler("viphelp", vip_bot.help_command))
+        self.app.add_handler(CommandHandler("vipstatus", vip_bot.status_command))
+        self.app.add_handler(CommandHandler("vipverify", vip_bot.verify_command))
+        self.app.add_handler(CommandHandler("vipmembers", vip_bot.members_command))
+        self.app.add_handler(CommandHandler("vipadd", vip_bot.add_vip_command))
+        
+        # GROUP BOT COMMANDS (group prefix)
+        self.app.add_handler(CommandHandler("groupstart", group_bot.start_command))
+        self.app.add_handler(CommandHandler("grouphelp", group_bot.help_command))
+        self.app.add_handler(CommandHandler("groupstats", group_bot.stats_command))
+        self.app.add_handler(CommandHandler("groupverify", group_bot.verify_command))
+        self.app.add_handler(CommandHandler("grouprules", group_bot.rules_command))
+        
+        # AUTOADV BOT COMMANDS (autoadv prefix)
+        self.app.add_handler(CommandHandler("autoadvstart", autoadv_bot.start_command))
+        self.app.add_handler(CommandHandler("autoadvhelp", autoadv_bot.help_command))
+        self.app.add_handler(CommandHandler("autoadvbuy", autoadv_bot.buy_command))
+        self.app.add_handler(CommandHandler("autoadvhistory", autoadv_bot.history_command))
+        self.app.add_handler(CommandHandler("autoadvpay", autoadv_bot.pay_command))
+        
+        # Group member verification
+        self.app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, group_bot.new_member_handler))
+        self.app.add_handler(CallbackQueryHandler(group_bot.verify_joined_callback, pattern="^verify_joined_"))
+        
+        # Purchase conversation handler
+        ad_purchase_conv = ConversationHandler(
+            entry_points=[CallbackQueryHandler(autoadv_bot.start_ad_purchase, pattern="^buy_ad$")],
+            states={
+                AD_HEADING: [MessageHandler(filters.TEXT & ~filters.COMMAND, autoadv_bot.receive_ad_heading)],
+                AD_TYPE: [CallbackQueryHandler(autoadv_bot.receive_ad_type, pattern="^type_")],
+                AD_DESCRIPTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, autoadv_bot.receive_ad_description)],
+                AD_CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, autoadv_bot.receive_ad_contact)],
+                AD_CONFIRMATION: [
+                    CallbackQueryHandler(autoadv_bot.confirm_purchase, pattern="^confirm_purchase$"),
+                    CallbackQueryHandler(autoadv_bot.cancel_purchase, pattern="^cancel_purchase$")
+                ],
+            },
+            fallbacks=[CommandHandler("cancel", autoadv_bot.cancel_conversation)],
+            per_message=False
+        )
+        self.app.add_handler(ad_purchase_conv)
+        
+        logger.info("✅ All handlers setup complete")
     
     def start_scheduler(self):
         """Start the advertisement scheduler"""
@@ -3896,47 +3993,42 @@ class SingleBotSystem:
         except Exception as e:
             logger.error(f"❌ Error starting scheduler: {e}")
     
-    async def run_webhook(self):
-        """Run the bot using webhook to avoid conflicts"""
-        # Get webhook URL from environment or use a default
-        webhook_url = os.getenv('WEBHOOK_URL', 'https://your-domain.com/webhook')
-        port = int(os.getenv('PORT', 8080))
-        
-        await self.app.initialize()
-        await self.app.bot.set_webhook(url=f"{webhook_url}/{self.token}")
-        
-        logger.info(f"✅ Webhook set to: {webhook_url}/{self.token}")
-        logger.info("🚀 Bot is running in webhook mode (no polling conflicts)")
-        
-        # Start the scheduler
-        self.start_scheduler()
-        
-        # Keep the application running
-        await self.app.start()
-        await asyncio.Future()  # Run forever
-    
-    def run_bot_webhook(self):
-        """Run the bot with webhook"""
+    def run_bot(self):
+        """Run the combined bot synchronously"""
         import asyncio
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
+        async def async_run():
+            await init_database()
+            self.setup_handlers()
+            self.start_scheduler()
+            
+            logger.info("🚀 Combined Bot is running...")
+            await self.app.initialize()
+            await self.app.start()
+            await self.app.updater.start_polling()
+            
+            # Keep the bot running
+            while True:
+                await asyncio.sleep(3600)
+        
         try:
-            loop.run_until_complete(self.run_webhook())
+            loop.run_until_complete(async_run())
         except KeyboardInterrupt:
             logger.info("🛑 Bot stopped by user")
         except Exception as e:
-            logger.error(f"❌ Error in bot: {e}")
+            logger.error(f"❌ Error in Combined Bot: {e}")
         finally:
             loop.run_until_complete(self.app.stop())
             loop.run_until_complete(self.app.shutdown())
             loop.close()
 
 def main():
-    """Main function - tries webhook first, falls back to polling with conflict handling"""
-    logger.info("🚀 Starting INTERLINK Bot System...")
+    """Main function - runs single combined bot"""
+    logger.info("🚀 Starting INTERLINK Multi-Bot System (Single Bot Version)...")
     
-    # Initialize database
+    # Initialize database first
     import asyncio
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -3945,17 +4037,9 @@ def main():
     
     logger.info("✅ Database initialized successfully")
     
-    # Create the single bot
-    bot = SingleBotSystem(ADV_BOT_TOKEN)
-    
-    # Try webhook mode first
-    webhook_url = os.getenv('WEBHOOK_URL')
-    if webhook_url:
-        logger.info("🌐 Using webhook mode")
-        bot.run_bot_webhook()
-    else:
-        logger.info("🔄 Using polling mode with conflict handling")
-        bot.run_bot_polling_with_retry()
+    # Create and run the combined bot
+    combined_bot = CombinedBot(ADV_BOT_TOKEN)
+    combined_bot.run_bot()
 
 if __name__ == "__main__":
     main()
