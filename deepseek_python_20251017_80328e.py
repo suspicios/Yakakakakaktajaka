@@ -1,5 +1,4 @@
-[file name]: taporikabap.py
-[file content begin]
+
 """
 🚀 INTERLINK MULTI-BOT SYSTEM
 Complete bot ecosystem for group management, VIP verification, advertising, and payment processing.
@@ -4557,4 +4556,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-[file content end]
