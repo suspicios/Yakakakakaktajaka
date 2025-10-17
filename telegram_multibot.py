@@ -1885,23 +1885,34 @@ def run_all_bots():
         logger.info("🛑 All enhanced bots stopped by user")
 
 # ============================
-# 🚀 MAIN EXECUTION - ALL BOTS
+# 🚀 MAIN EXECUTION - ALL BOTS  
 # ============================
 
 def main():
     """Main function - automatically run all bots in container environment"""
-    logger.info("🚀 Starting ALL enhanced bots in container mode...")
+    print("🚀 ENHANCED INTERLINK BOT SYSTEM - CONTAINER MODE")
+    print("=" * 50)
+    print("🤖 Starting ALL enhanced bots automatically...")
+    print("💾 Database initialized successfully")
+    print("🔄 Starting bot threads...")
     
-    # In container environment, automatically run all bots
+    # Automatically run all bots in container environment
     run_all_bots()
 
 if __name__ == "__main__":
     # Initialize database first
     import asyncio
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(init_database())
-    loop.close()
-    
-    logger.info("✅ Enhanced database initialized successfully")
-    main()
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(init_database())
+        loop.close()
+        
+        logger.info("✅ Enhanced database initialized successfully")
+        print("✅ Enhanced database initialized successfully")
+        
+        # Start all bots
+        main()
+    except Exception as e:
+        logger.error(f"❌ Error during startup: {e}")
+        print(f"❌ Error during startup: {e}")
