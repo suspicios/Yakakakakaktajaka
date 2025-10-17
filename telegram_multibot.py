@@ -1884,39 +1884,16 @@ def run_all_bots():
     except KeyboardInterrupt:
         logger.info("🛑 All enhanced bots stopped by user")
 
+# ============================
+# 🚀 MAIN EXECUTION - ALL BOTS
+# ============================
+
 def main():
-    """Main function - choose which bot to run"""
-    print("🚀 ENHANCED INTERLINK BOT SYSTEM")
-    print("=" * 40)
-    print("1. Run ALL Enhanced Bots")
-    print("2. Run Enhanced Advertising Bot Only")
-    print("3. Run Enhanced VIP Bot Only") 
-    print("4. Run Enhanced AutoADV Bot Only")
-    print("5. Exit")
+    """Main function - automatically run all bots in container environment"""
+    logger.info("🚀 Starting ALL enhanced bots in container mode...")
     
-    choice = input("\nSelect option (1-5): ").strip()
-    
-    if choice == "1":
-        logger.info("Starting ALL enhanced bots...")
-        run_all_bots()
-    elif choice == "2":
-        logger.info("Starting Enhanced Advertising Bot only...")
-        adv_bot = EnhancedAdvertisingBot(ADV_BOT_TOKEN)
-        adv_bot.run_bot()
-    elif choice == "3":
-        logger.info("Starting Enhanced VIP Bot only...")
-        vip_bot = EnhancedVIPVerificationBot(VIP_BOT_TOKEN)
-        vip_bot.run_bot()
-    elif choice == "4":
-        logger.info("Starting Enhanced AutoADV Bot only...")
-        autoadv_bot = EnhancedAutoAdvPaymentBot(AUTOADV_BOT_TOKEN)
-        autoadv_bot.run_bot()
-    elif choice == "5":
-        logger.info("Exiting...")
-        return
-    else:
-        print("Invalid choice. Please run again.")
-        main()
+    # In container environment, automatically run all bots
+    run_all_bots()
 
 if __name__ == "__main__":
     # Initialize database first
