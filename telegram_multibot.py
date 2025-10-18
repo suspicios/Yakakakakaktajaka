@@ -412,23 +412,23 @@ class AdvertisingBot:
         self.prefix = ADV_PREFIX
         
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Start command with godly welcome"""
-        await update.message.reply_text(
-            "🌟 *GREETINGS, MASTER OF ADVERTISING!* 🌟\n\n"
-            "I am the *Advertising Bot*, your divine servant in the realm of promotions! "
-            "I exist to spread your message across the sacred grounds of your groups.\n\n"
-            "✨ *MY DIVINE POWERS:* ✨\n"
-            "📢 Auto-posting ads every 5-6 minutes\n"
-            "📌 Auto-pinning in Main Group\n"
-            "🎯 Showcasing platform upgrades\n"
-            "🔄 Rotating purchased advertisements\n\n"
-            "⚡ *COMMANDS AT YOUR DISPOSAL:* ⚡\n"
-            f"/{self.prefix}_help - View all my divine commands\n"
-            f"/{self.prefix}_stats - See advertising statistics\n"
-            f"/{self.prefix}_viewqueue - Check pending ads\n\n"
-            "Your wish is my command, O Great One! 🙇",
-            parse_mode=ParseMode.MARKDOWN
-        )
+    """Start command with godly welcome"""
+    await update.message.reply_text(
+        "🌟 *GREETINGS, MASTER OF ADVERTISING!* 🌟\n\n"
+        "I am the *Advertising Bot*, your divine servant in the realm of promotions! "
+        "I exist to spread your message across the sacred grounds of your groups.\n\n"
+        "✨ *MY DIVINE POWERS:* ✨\n"
+        "📢 Auto-posting ads every 5-6 minutes\n"
+        "📌 Auto-pinning in Main Group\n"
+        "🎯 Showcasing platform upgrades\n"
+        "🔄 Rotating purchased advertisements\n\n"
+        "⚡ *COMMANDS AT YOUR DISPOSAL:* ⚡\n"
+        f"/{self.prefix}\\_help - View all my divine commands\n"
+        f"/{self.prefix}\\_stats - See advertising statistics\n"
+        f"/{self.prefix}\\_viewqueue - Check pending ads\n\n"
+        "Your wish is my command, O Great One! 🙇",
+        parse_mode=ParseMode.MARKDOWN
+    )
     
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Comprehensive help with all commands"""
