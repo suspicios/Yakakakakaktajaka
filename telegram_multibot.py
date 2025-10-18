@@ -4,7 +4,7 @@ Complete bot ecosystem for group management, VIP verification, advertising, and 
 
 Author: 
 Version: 1.1.0
-Enhanced with comprehensive error handling
+Enhanced with comprehensive error handlig
 """
 
 import asyncio
