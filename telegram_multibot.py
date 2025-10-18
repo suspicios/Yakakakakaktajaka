@@ -412,8 +412,8 @@ class AdvertisingBot:
         self.prefix = ADV_PREFIX
         
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start command with godly welcome"""
-    await update.message.reply_text(
+       
+        await update.message.reply_text(
         "🌟 *GREETINGS, MASTER OF ADVERTISING!* 🌟\n\n"
         "I am the *Advertising Bot*, your divine servant in the realm of promotions! "
         "I exist to spread your message across the sacred grounds of your groups.\n\n"
