@@ -2,7 +2,7 @@
 🚀 INTERLINK MULTI-BOT SYSTEM
 Complete bot ecosystem for group management, VIP verification, advertising, and payment processing.
 
-Author: Claude
+Author: 
 Version: 1.1.0
 Enhanced with comprehensive error handling
 """
