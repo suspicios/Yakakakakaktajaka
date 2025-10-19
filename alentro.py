@@ -1,5 +1,4 @@
-[file name]: shwaty_fixed.py
-[file content begin]
+
 """
 🚀 INTERLINK MULTI-BOT SYSTEM - FIXED ERROR HANDLING
 Complete bot ecosystem for group management, VIP verification, advertising, and payment processing.
@@ -3601,4 +3600,3 @@ if __name__ == "__main__":
         logger.critical(traceback.format_exc())
     finally:
         print("🔚 System shutdown complete")
-[file content end]
