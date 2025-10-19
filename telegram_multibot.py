@@ -54,7 +54,7 @@ TRONSCAN_API = "https://apilist.tronscan.org/api/transaction/info"
 YOUR_USDT_ADDRESS = "TD1gmGWyWqFY5STqZW5PMRqMR46xJhj5rP"
 
 # Admin User IDs (Add your admin IDs here)
-ADMIN_IDS = [123456789]  # Replace with actual admin user IDs
+ADMIN_IDS = [7578682081]  # Replace with actual admin user IDs
 
 # Database
 DB_NAME = "interlink_bots.db"
