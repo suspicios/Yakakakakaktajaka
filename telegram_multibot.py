@@ -27,6 +27,8 @@ from telegram.constants import ParseMode
 from telegram.error import TelegramError, NetworkError, BadRequest, Forbidden, TimedOut
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.base import JobLookupError
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 # ============================
 # 🔧 CONFIGURATION
@@ -416,6 +418,64 @@ class ConfigManager:
                 VALUES (?, ?, ?, ?, ?)
             """, (bot_name, error_type, error_message, traceback_text, datetime.now().isoformat()))
             await db.commit()
+
+# ============================
+# 🗄️ DATABASE CONNECTION MANAGER - ADD THIS
+# ============================
+class DatabaseManager:
+    _instance = None
+    _db_path = DB_NAME
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    @asynccontextmanager
+    async def get_connection(self) -> AsyncGenerator[aiosqlite.Connection, None]:
+        """Get a database connection with proper error handling and retry logic"""
+        max_retries = 5
+        retry_delay = 0.1
+        
+        for attempt in range(max_retries):
+            try:
+                async with aiosqlite.connect(self._db_path, timeout=30.0) as db:
+                    # Configure connection for better performance
+                    await db.execute("PRAGMA journal_mode=WAL")
+                    await db.execute("PRAGMA busy_timeout=5000")
+                    await db.execute("PRAGMA synchronous=NORMAL")
+                    await db.execute("PRAGMA cache_size=10000")
+                    
+                    try:
+                        yield db
+                        break  # Success, exit retry loop
+                    except aiosqlite.OperationalError as e:
+                        if "database is locked" in str(e) and attempt < max_retries - 1:
+                            logger.warning(f"Database locked, retrying... (Attempt {attempt + 1})")
+                            await asyncio.sleep(retry_delay)
+                            retry_delay *= 2  # Exponential backoff
+                            continue
+                        else:
+                            raise
+            except aiosqlite.OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    logger.warning(f"Database connection locked, retrying... (Attempt {attempt + 1})")
+                    await asyncio.sleep(retry_delay)
+                    retry_delay *= 2
+                    continue
+                else:
+                    raise
+
+# Create global instance
+db_manager = DatabaseManager()
+
+# ============================
+# 🔄 UPDATE ALL DATABASE OPERATIONS - REPLACE THIS PATTERN:
+# ============================
+
+# OLD: async with aiosqlite.connect(DB_NAME) as db:
+# NEW: async with db_manager.get_connection() as db:
+
 
 # ============================
 # 📊 STATISTICS MANAGER
