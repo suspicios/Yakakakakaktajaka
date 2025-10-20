@@ -1,5 +1,3 @@
-[file name]: feethedoe_fixed.py
-[file content begin]
 """
 🚀 INTERLINK MULTI-BOT SYSTEM - COMPLETE FIXED VERSION
 Complete bot ecosystem for group management, VIP verification, advertising, and payment processing.
