@@ -1270,7 +1270,7 @@ class AdvertisingBot:
             try:
                 logger.info(f"🚀 Starting Advertising Bot (Attempt {attempt + 1}/{max_retries})...")
                 
-                await self.start_bot()
+                await self.run()
                 
                 self.is_running = True
                 logger.info("✅ Advertising Bot started and polling successfully")
