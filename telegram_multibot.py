@@ -35,7 +35,7 @@ from typing import AsyncGenerator
 # ============================
 
 # PAYMENT MODE: "dummy" or "real"
-PAYMENT_MODE = "dummy"  # Change to "real" for production
+PAYMENT_MODE = "real"  # Change to "real" for production
 
 # Bot Tokens
 ADV_BOT_TOKEN = "8455931212:AAGOLICokhaKTmqEJKKCzDa9gobYnywmlN4"
