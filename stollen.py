@@ -1,5 +1,4 @@
-[file name]: putinu.py
-[file content begin]
+
 """
 🚀 INTERLINK MULTI-BOT SYSTEM - COMPLETE FIXED VERSION
 Complete bot ecosystem for group management, VIP verification, advertising, and payment processing.
@@ -4385,4 +4384,3 @@ if __name__ == "__main__":
         logger.error(traceback.format_exc())
     finally:
         logger.info("👋 Interlink Multi-Bot System shutdown complete")
-[file content end]
